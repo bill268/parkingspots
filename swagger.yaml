@@ -1,0 +1,303 @@
+swagger: "2.0"
+info:
+  description: "Assume that we are building a street parking spot reservation service. Users should be able to view street parking spots, reserve and pay for the parking spots or cancel their reservations. "
+
+  version: "1.0.0"
+  title: "a street parking spot reservation service"
+  contact:
+    email: "bill.hongwu.chen@gmail.com"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "localhost"
+basePath: "/v1"
+tags:
+- name: "parkingspot"
+  description: "the parking spot at street"
+- name: "user"
+  description: "the user to reserve parking lot"
+schemes:
+- "http"
+consumes:
+- "application/json"
+produces:
+- "application/xml"
+paths:
+  /parkingspots:
+    post:
+      tags:
+      - "parkingspot"
+      summary: "Add a new parking spot to the street"
+      description: ""
+      operationId: "addParkingSpot"
+
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "parking spot object that needs to be added to the street"
+        required: true
+        schema:
+          $ref: "#/definitions/ParkingSpot"
+      responses:
+        405:
+          description: "Invalid input"
+
+    get:
+      tags:
+      - "parkingspot"
+      summary: "Find parking spots by status"
+      description: "return a list parking spots"
+      operationId: "findParkingSpots"
+      parameters:
+      - name: "latitude"
+        in: "query"
+        description: "Latitude coordinate around which to filter."
+        type: "number"
+        format: "float"
+      - name: "longitude"
+        in: "query"
+        description: "Longitude coordinate around which to filter."
+        type: "number"
+        format: "float"
+      - name: "radius"
+        in: "query"
+        description: "Radius (distance), in meters, from the coordinate."
+        type: "number"
+        format: "float"
+      - name: "status"
+        in: "query"
+        description: "availability_status of the parking spot to filter"
+        type: "string"
+        enum:
+        - "available"
+        - "booked"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/ParkingSpot"
+        400:
+          description: "Invalid status value"
+
+  /parkingspots/{spotId}:
+    get:
+      tags:
+      - "parkingspot"
+      summary: "Find parking spot by ID"
+      description: "Returns a single parking spot"
+      operationId: "getparkingSpotById"
+      parameters:
+      - name: "spotId"
+        in: "path"
+        description: "ID of parking spot to return"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/ParkingSpot"
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "Parking spot not found"
+
+    patch:
+      tags:
+      - "parkingspot"
+      summary: "Updates a parking spot with new availability status "
+      description: ""
+      operationId: "updateParkingSpotStatus"
+      parameters:
+      - name: "spotId"
+        in: "path"
+        description: "ID of parking spot to update"
+        required: true
+        type: "integer"
+        format: "int64"
+      - in: "body"
+        name: "body"
+        description: "parking spot object include the new availability status"
+        required: true
+        schema:
+          $ref: "#/definitions/ParkingSpot"
+      responses:
+        405:
+          description: "Invalid input"
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "Parking spot not found"
+
+    delete:
+      tags:
+      - "parkingspot"
+      summary: "Deletes a parking spot"
+      description: ""
+      operationId: "deleteParkingSpot"
+      parameters:
+      - name: "spotId"
+        in: "path"
+        description: "ID of parking spot to delete"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "Parking spot not found"
+
+  
+  /users:
+    post:
+      tags:
+      - "user"
+      summary: "Create user"
+      description: "This can only be done by the logged in user."
+      operationId: "createUser"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Created user object"
+        required: true
+        schema:
+          $ref: "#/definitions/User"
+      responses:
+        default:
+          description: "successful operation"
+
+  /users/{username}:
+    get:
+      tags:
+      - "user"
+      summary: "Get user by user name"
+      description: ""
+      operationId: "getUserByName"
+      parameters:
+      - name: "username"
+        in: "path"
+        description: "The name that needs to be fetched. Use user1 for testing. "
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/User"
+        400:
+          description: "Invalid username supplied"
+        404:
+          description: "User not found"
+    put:
+      tags:
+      - "user"
+      summary: "Updated user"
+      description: "This can only be done by the logged in user."
+      operationId: "updateUser"
+      parameters:
+      - name: "username"
+        in: "path"
+        description: "name that need to be updated"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "body"
+        description: "Updated user object"
+        required: true
+        schema:
+          $ref: "#/definitions/User"
+      responses:
+        400:
+          description: "Invalid user supplied"
+        404:
+          description: "User not found"
+    delete:
+      tags:
+      - "user"
+      summary: "Delete user"
+      description: "This can only be done by the logged in user."
+      operationId: "deleteUser"
+      parameters:
+      - name: "username"
+        in: "path"
+        description: "The name that needs to be deleted"
+        required: true
+        type: "string"
+      responses:
+        400:
+          description: "Invalid username supplied"
+        404:
+          description: "User not found"
+          
+definitions:
+
+  User:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      username:
+        type: "string"
+      firstName:
+        type: "string"
+      lastName:
+        type: "string"
+      email:
+        type: "string"
+      password:
+        type: "string"
+      phone:
+        type: "string"
+      userStatus:
+        type: "integer"
+        format: "int32"
+        description: "User Status"
+    xml:
+      name: "User"
+
+  ParkingSpot:
+    type: "object"
+    description: "parking spot in the street"
+    required:
+    - "name"
+    - "photoUrls"
+    properties:
+      id:
+        type: "integer"
+        description: "identity id of the parking spot"
+        format: "int64"
+      name:
+        type: "string"
+        description: "meaningful name of the parking spot, easy for human being"
+      latitude:
+        type: "number"
+        format: "float"
+        description: "Latitude coordinate of this parking spot"
+      longitude:
+        type: "number"
+        format: "float"
+        description: "longitude coordinate of this parking spot"
+      status:
+        type: "string"
+        description: "available status for resveration"
+        enum:
+        - "available"
+        - "booked"
+
+    xml:
+      name: "ParkingSpot"
+  ApiResponse:
+    type: "object"
+    properties:
+      code:
+        type: "integer"
+        format: "int32"
+      type:
+        type: "string"
+      message:
+        type: "string"
