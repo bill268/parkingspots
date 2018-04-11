@@ -1,0 +1,318 @@
+---
+swagger: "2.0"
+info:
+  description: "Assume that we are building a street parking spot reservation service.\
+    \ Users should be able to view street parking spots, reserve and pay for the parking\
+    \ spots or cancel their reservations. "
+  version: "1.0.0"
+  title: "a street parking spot reservation service"
+  contact:
+    email: "bill.hongwu.chen@gmail.com"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "localhost"
+basePath: "/v1"
+tags:
+- name: "parkingspot"
+  description: "the parking spot at street"
+- name: "user"
+  description: "the user to reserve parking lot"
+schemes:
+- "http"
+consumes:
+- "application/json"
+produces:
+- "application/xml"
+paths:
+  /parkingspots:
+    get:
+      tags:
+      - "parkingspot"
+      summary: "Find parking spots by status"
+      description: "return a list parking spots"
+      operationId: "find_parking_spots"
+      parameters:
+      - name: "latitude"
+        in: "query"
+        description: "Latitude coordinate around which to filter."
+        required: false
+        type: "number"
+        format: "float"
+      - name: "longitude"
+        in: "query"
+        description: "Longitude coordinate around which to filter."
+        required: false
+        type: "number"
+        format: "float"
+      - name: "radius"
+        in: "query"
+        description: "Radius (distance), in meters, from the coordinate."
+        required: false
+        type: "number"
+        format: "float"
+      - name: "status"
+        in: "query"
+        description: "availability_status of the parking spot to filter"
+        required: false
+        type: "string"
+        enum:
+        - "available"
+        - "booked"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/ParkingSpot"
+        400:
+          description: "Invalid status value"
+      x-swagger-router-controller: "swagger_server.controllers.parkingspot_controller"
+    post:
+      tags:
+      - "parkingspot"
+      summary: "Add a new parking spot to the street"
+      description: ""
+      operationId: "add_parking_spot"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "parking spot object that needs to be added to the street"
+        required: true
+        schema:
+          $ref: "#/definitions/ParkingSpot"
+      responses:
+        405:
+          description: "Invalid input"
+      x-swagger-router-controller: "swagger_server.controllers.parkingspot_controller"
+  /parkingspots/{spotId}:
+    get:
+      tags:
+      - "parkingspot"
+      summary: "Find parking spot by ID"
+      description: "Returns a single parking spot"
+      operationId: "getparking_spot_by_id"
+      parameters:
+      - name: "spotId"
+        in: "path"
+        description: "ID of parking spot to return"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/ParkingSpot"
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "Parking spot not found"
+      x-swagger-router-controller: "swagger_server.controllers.parkingspot_controller"
+    delete:
+      tags:
+      - "parkingspot"
+      summary: "Deletes a parking spot"
+      description: ""
+      operationId: "delete_parking_spot"
+      parameters:
+      - name: "spotId"
+        in: "path"
+        description: "ID of parking spot to delete"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "Parking spot not found"
+      x-swagger-router-controller: "swagger_server.controllers.parkingspot_controller"
+    patch:
+      tags:
+      - "parkingspot"
+      summary: "Updates a parking spot with new availability status "
+      description: ""
+      operationId: "update_parking_spot_status"
+      parameters:
+      - name: "spotId"
+        in: "path"
+        description: "ID of parking spot to update"
+        required: true
+        type: "integer"
+        format: "int64"
+      - in: "body"
+        name: "body"
+        description: "parking spot object include the new availability status"
+        required: true
+        schema:
+          $ref: "#/definitions/ParkingSpot"
+      responses:
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "Parking spot not found"
+        405:
+          description: "Invalid input"
+      x-swagger-router-controller: "swagger_server.controllers.parkingspot_controller"
+  /users:
+    post:
+      tags:
+      - "user"
+      summary: "Create user"
+      description: "This can only be done by the logged in user."
+      operationId: "create_user"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Created user object"
+        required: true
+        schema:
+          $ref: "#/definitions/User"
+      responses:
+        default:
+          description: "successful operation"
+      x-swagger-router-controller: "swagger_server.controllers.user_controller"
+  /users/{username}:
+    get:
+      tags:
+      - "user"
+      summary: "Get user by user name"
+      description: ""
+      operationId: "get_user_by_name"
+      parameters:
+      - name: "username"
+        in: "path"
+        description: "The name that needs to be fetched. Use user1 for testing. "
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/User"
+        400:
+          description: "Invalid username supplied"
+        404:
+          description: "User not found"
+      x-swagger-router-controller: "swagger_server.controllers.user_controller"
+    put:
+      tags:
+      - "user"
+      summary: "Updated user"
+      description: "This can only be done by the logged in user."
+      operationId: "update_user"
+      parameters:
+      - name: "username"
+        in: "path"
+        description: "name that need to be updated"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "body"
+        description: "Updated user object"
+        required: true
+        schema:
+          $ref: "#/definitions/User"
+      responses:
+        400:
+          description: "Invalid user supplied"
+        404:
+          description: "User not found"
+      x-swagger-router-controller: "swagger_server.controllers.user_controller"
+    delete:
+      tags:
+      - "user"
+      summary: "Delete user"
+      description: "This can only be done by the logged in user."
+      operationId: "delete_user"
+      parameters:
+      - name: "username"
+        in: "path"
+        description: "The name that needs to be deleted"
+        required: true
+        type: "string"
+      responses:
+        400:
+          description: "Invalid username supplied"
+        404:
+          description: "User not found"
+      x-swagger-router-controller: "swagger_server.controllers.user_controller"
+definitions:
+  User:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      username:
+        type: "string"
+      firstName:
+        type: "string"
+      lastName:
+        type: "string"
+      email:
+        type: "string"
+      password:
+        type: "string"
+      phone:
+        type: "string"
+      userStatus:
+        type: "integer"
+        format: "int32"
+        description: "User Status"
+    example:
+      firstName: "firstName"
+      lastName: "lastName"
+      password: "password"
+      userStatus: 6
+      phone: "phone"
+      id: 0
+      email: "email"
+      username: "username"
+    xml:
+      name: "User"
+  ParkingSpot:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+        description: "identity id of the parking spot"
+      name:
+        type: "string"
+        description: "meaningful name of the parking spot, easy for human being"
+      latitude:
+        type: "number"
+        format: "float"
+        description: "Latitude coordinate of this parking spot"
+      longitude:
+        type: "number"
+        format: "float"
+        description: "longitude coordinate of this parking spot"
+      status:
+        type: "string"
+        description: "available status for resveration"
+        enum:
+        - "available"
+        - "booked"
+    description: "parking spot in the street"
+    example:
+      latitude: 6.0274563
+      name: "name"
+      id: 0
+      longitude: 1.4658129
+      status: "available"
+    xml:
+      name: "ParkingSpot"
+  ApiResponse:
+    type: "object"
+    properties:
+      code:
+        type: "integer"
+        format: "int32"
+      type:
+        type: "string"
+      message:
+        type: "string"
