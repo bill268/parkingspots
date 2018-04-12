@@ -11,7 +11,7 @@ info:
   license:
     name: "Apache 2.0"
     url: "http://www.apache.org/licenses/LICENSE-2.0.html"
-host: "localhost"
+host: "localhost:8080"
 basePath: "/v1"
 tags:
 - name: "parkingspot"
@@ -85,6 +85,10 @@ paths:
       responses:
         405:
           description: "Invalid input"
+        201:
+          description: "successfully created"
+          schema:
+            $ref: "#/definitions/ParkingSpot"
       x-swagger-router-controller: "swagger_server.controllers.parkingspot_controller"
   /parkingspots/{spotId}:
     get:
@@ -124,6 +128,8 @@ paths:
         type: "integer"
         format: "int64"
       responses:
+        204:
+          description: "successfully deleted"
         400:
           description: "Invalid ID supplied"
         404:
@@ -149,6 +155,11 @@ paths:
         schema:
           $ref: "#/definitions/ParkingSpot"
       responses:
+        200:
+          description: "successful updated"
+          schema:
+            $ref: "#/definitions/ParkingSpot"
+        400:
         400:
           description: "Invalid ID supplied"
         404:
