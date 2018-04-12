@@ -30,7 +30,7 @@ class Memory:
             if not self.ifExisted(spot_id):
                 return 
 
-            return self.spots[spot.id]
+            return self.spots[spot_id]
         else:
             return self.spots.values()
             

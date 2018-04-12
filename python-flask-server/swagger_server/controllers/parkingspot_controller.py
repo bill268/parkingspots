@@ -12,13 +12,15 @@ store = Memory()
 
 def getDistance(spot, latitude=None, longitude=None):
     """
-    calculate distance between two points using latitude and longitude.
+    calculate distance in meters between two points using latitude and longitude.
     """
     slat = radians(latitude)
     slon = radians(longitude)
     elat = radians(spot.latitude)
     elon = radians(spot.longitude)
-    return 6371.01 * acos(sin(slat)*sin(elat) + cos(slat)*cos(elat)*cos(slon - elon))
+    # approximate radius of earth in km
+    R = 6371.01
+    return 1000.0 * ( R * acos(sin(slat)*sin(elat) + cos(slat)*cos(elat)*cos(slon - elon)))
 
 
 def spotMatched(spot, latitude=None, longitude=None, radius=None, status=None):
@@ -50,7 +52,8 @@ def add_parking_spot(body):  # noqa: E501
         
     code = store.insert(body)
     if code == 0:
-        resp = Response(json.dumps(store.select(body.id)), status=201, mimetype='application/json')
+        resp = jsonify(store.select(body.id))
+        resp.status_code = 201
     elif code == -1:
         message = {
                 'status': 500,
@@ -85,7 +88,7 @@ def delete_parking_spot(spotId):  # noqa: E501
     else:
         message = {
                 'status': 404,
-                'message': 'not found this parking spot: ' + spotId,
+                'message': 'not found this parking spot: ' + str(spotId),
         }
         resp = jsonify(message)
         resp.status_code = 404
@@ -132,7 +135,7 @@ def getparking_spot_by_id(spotId):  # noqa: E501
     else:
         message = {
                 'status': 404,
-                'message': 'not found this parking spot: ' + spotId,
+                'message': 'not found this parking spot: ' + str(spotId),
         }
         resp = jsonify(message)
         resp.status_code = 404
@@ -158,16 +161,17 @@ def update_parking_spot_status(spotId, body):  # noqa: E501
     if not spot: 
         message = {
                 'status': 404,
-                'message': 'not found this parking spot: ' + spotId,
+                'message': 'not found this parking spot: ' + str(spotId),
         }
         resp = jsonify(message)
         resp.status_code = 404
         return resp
         
     spot.status = body.status    
-    code = store.update(spot)
+    code = store.update(spotId, spot)
     if code == 0:
-        resp = Response(json.dumps(spot), status=200, mimetype='application/json')
+        resp = jsonify(spot)
+        resp.status_code = 200
     elif code == -1:
         message = {
                 'status': 500,
