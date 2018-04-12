@@ -20,4 +20,9 @@ Need two REST API's.
 input: latitude, longitude and radius (in meters)
 * Second API - reserve a available spot (using id)
 
+*the screen shot of the swagger ui*
+![swagger-ui running in local docker container](https://github.com/bill268/parkingspots/blob/master/swagger_ui_screenshot.png)
+
+
+
 
