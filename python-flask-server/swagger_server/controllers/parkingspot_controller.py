@@ -26,7 +26,7 @@ def spotMatched(spot, latitude=None, longitude=None, radius=None, status=None):
     return boolean to define if we should filter it out for the query condition
     """
     # check if match the availability_status or not 
-    if status and status <> spot.status:
+    if status and status != spot.status:
         return False
     # check if in the circle or not
     if latitude and longitude and radius:
@@ -48,10 +48,10 @@ def add_parking_spot(body):  # noqa: E501
     if connexion.request.is_json:
         body = ParkingSpot.from_dict(connexion.request.get_json())  # noqa: E501
         
-	code = store.insert(body)
-	if code == 0:
+    code = store.insert(body)
+    if code == 0:
         resp = Response(json.dumps(store.select(body.id)), status=201, mimetype='application/json')
-	elif code == -1:
+    elif code == -1:
         message = {
                 'status': 500,
                 'message': 'unexpected internal server error',
@@ -65,7 +65,7 @@ def add_parking_spot(body):  # noqa: E501
         }
         resp = jsonify(message)
         resp.status_code = 409
-	return resp
+    return resp
 
 
 def delete_parking_spot(spotId):  # noqa: E501
@@ -78,8 +78,8 @@ def delete_parking_spot(spotId):  # noqa: E501
 
     :rtype: None
     """
-	code = store.delete(spotId)
-	if code == 0:
+    code = store.delete(spotId)
+    if code == 0:
         resp = jsonify()
         resp.status_code = 204
     else:
@@ -89,7 +89,7 @@ def delete_parking_spot(spotId):  # noqa: E501
         }
         resp = jsonify(message)
         resp.status_code = 404
-	return resp
+    return resp
 
     
 def find_parking_spots(latitude=None, longitude=None, radius=None, status=None):  # noqa: E501
@@ -126,7 +126,7 @@ def getparking_spot_by_id(spotId):  # noqa: E501
     :rtype: ParkingSpot
     """
     spot = store.select(spotId)
-	if spot:
+    if spot:
         resp = jsonify(spot)
         resp.status_code = 200
     else:
@@ -136,7 +136,7 @@ def getparking_spot_by_id(spotId):  # noqa: E501
         }
         resp = jsonify(message)
         resp.status_code = 404
-	return resp
+    return resp
 
 
 def update_parking_spot_status(spotId, body):  # noqa: E501
@@ -165,10 +165,10 @@ def update_parking_spot_status(spotId, body):  # noqa: E501
         return resp
         
     spot.status = body.status    
-	code = store.update(spot)
-	if code == 0:
+    code = store.update(spot)
+    if code == 0:
         resp = Response(json.dumps(spot), status=200, mimetype='application/json')
-	elif code == -1:
+    elif code == -1:
         message = {
                 'status': 500,
                 'message': 'unexpected internal server error',
@@ -182,4 +182,4 @@ def update_parking_spot_status(spotId, body):  # noqa: E501
         }
         resp = jsonify(message)
         resp.status_code = 409
-	return resp
+    return resp
